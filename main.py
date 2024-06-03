@@ -33,4 +33,5 @@ except Exception as e:
     logging.error(f"An error occurred: {e}")
 finally:
     # Close the browser
-    bot.close()
+    if bot is not None:
+        bot.close()
