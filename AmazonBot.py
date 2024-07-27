@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import json
 import time
 
@@ -103,7 +104,9 @@ class AmazonBot:
         Search for the item specified.
         """
         try:
-            search_box = self.driver.find_element(By.ID, "twotabsearchtextbox")
+            search_box = WebDriverWait(self.driver, 10).until(
+                EC.visibility_of_element_located(
+                    (By.ID, "twotabsearchtextbox")))
             search_box.send_keys(item)
             time.sleep(1)
             search_box.send_keys(Keys.ENTER)
@@ -115,15 +118,38 @@ class AmazonBot:
         Select the item from the search results and add it to the cart.
         """
         try:
-            select_item = self.driver.find_element(
-                By.XPATH,
-                "/html/body/div[1]/div[1]/div[1]/div[1]/div/span[1]/div[1]/div[2]/div/div/div/div/span/div/div/div/div[1]/div/div[2]/div/span/a/div/img"
-            )  
+            # Attempt to find the primary element
+            select_item = WebDriverWait(self.driver, 10).until(
+                EC.visibility_of_element_located(
+                    (By.XPATH, "/html/body/div[1]/div[1]/div[1]/div[1]/div/span[1]/div[1]/div[2]/div/div/div/div/span/div/div/div/div[1]/div/div[2]/div/span/a/div")
+                )
+            )
             select_item.click()
-            cart_button = self.driver.find_element(By.ID, "add-to-cart-button")
+            print("Primary element clicked.")
+            cart_button = WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable((By.ID, "add-to-cart-button"))
+            )
             cart_button.click()
+            print("Item added to cart.")
+        except (TimeoutException, NoSuchElementException):
+            print("Primary element not found, trying alternative element.")
+            try:
+                # Attempt to find the alternate element if the primary is not found
+                alternate_item = WebDriverWait(self.driver, 10).until(
+                    EC.visibility_of_element_located(
+                        (By.ID, "a-autoid-1-announce")
+                    )
+                )
+                alternate_item.click()
+                print("Alternate element clicked.")
+            except (TimeoutException, NoSuchElementException):
+                print("Alternate element also not found.")
+                return  # Neither element was found, stopping further execution
+            except Exception as e:
+                print(f"Error with alternate item: {e}")
+                return
         except Exception as e:
-            print(f"Error adding item to cart: {e}")
+            print(f"Error opening the Product: {e}")
 
     def go_to_cart(self):
         """
