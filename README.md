@@ -33,7 +33,7 @@ This project is a Python-based automation script that uses Selenium to automate 
 3. **Download Chrome WebDriver**:
 
    - Ensure you have the Chrome browser installed.
-   - Download the corresponding Chrome WebDriver from [here](https://sites.google.com/a/chromium.org/chromedriver/downloads).
+   - Download the corresponding Chrome WebDriver from [here](https://developer.chrome.com/docs/chromedriver/downloads#chromedriver_1140573590).
    - Extract the WebDriver executable and place it in the same directory as your scripts or add it to your system PATH.
 
 4. **Update `data.json`**:
